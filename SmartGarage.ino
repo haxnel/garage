@@ -1,35 +1,39 @@
-//Pemanggilan library LCD dan Servo
-#include <LiquidCrystal.h> 
+#include <LiquidCrystal_I2C.h>
 #include <Servo.h>
+#include <DHT.h>
  
-//untuk urutannya RS, E, 4, 5, 6, 7
-LiquidCrystal lcd(6, 7, 5, 4, 3, 2); //pin yang disambungkan antara arduino dengan LCD
- 
-//Instalasi servo
+// Konstruk object LCD dengan alamat I2C
+// Ganti 0x3F sesuai dengan alamat I2C modul kalian
+// Jika tidak tahu dapat menggunakan LCD I2C Scanner
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 Servo servo;
+#define trigPin D8
+#define echoPin D7
+#define buzzer D4
+#define dhtpin D3
+#define DHTTYPE DHT11
 
-int const trigPin = 12;
-int const echoPin = 11;
-int const buzzer = 10;
+DHT dht(dhtpin, DHTTYPE);
 
-void setup()
+void setup() {
   
-{ 
-  //prosedur untuk mengatur ke contrast-an LCD 16*2
-  analogWrite(A1,50);
-//prosedur pemanggilan fungsi LCD
-lcd.begin(16, 2);//16 = Baris, 2 = kolom
-
-  pinMode(trigPin, OUTPUT ); 
+ pinMode(trigPin, OUTPUT ); 
 pinMode(echoPin, INPUT); 
-    servo.attach(13);
+    servo.attach(14); //D5
   
   pinMode(buzzer, OUTPUT);
+  // Pemanggilan pertama memerlukan parameter jumlah kolom dan baris
+  // Ini harus sama dengan yang dimasukan pada konstruktor.
+  lcd.begin(16,2);
+  lcd.init();
+  // Nyalakan backlight
+  lcd.backlight();
 }
  
 void loop(){
  //prosedur untuk mevariabelkan durasi dan jarak
-     int durasi, jarak;
+int durasi, jarak;
 digitalWrite(trigPin, HIGH); 
 digitalWrite(trigPin, LOW);
 digitalWrite(buzzer, HIGH);
@@ -39,7 +43,7 @@ durasi = pulseIn(echoPin, HIGH);
 // Perhitungan jarak dimana setengah durasi dibagi 29.1 (dari datasheet)
 jarak = (durasi/2) / 29.1;
 // Jika jarak kurang dari 35 cm dan lebih sama dengan 0
-if (jarak <= 35 && jarak >= 0) 
+if (jarak <= 30 && jarak >= 0) 
 {
   servo.write(90);
       
@@ -52,10 +56,9 @@ else
  delay(1000);
   
  //Pendeklerasian untuk Sensor Suhu Temperature
- int data = analogRead(A0);
   //Rumus untuk penghitungan suhu 
- float v = (data / 1024.0) * 5.0;
-  float suhu = (v - 0.5) * 100;
+ float v = dht.readHumidity();
+  float suhu = dht.readTemperature();
   
  lcd.setCursor(0,0);
  lcd.print("Suhu= ");

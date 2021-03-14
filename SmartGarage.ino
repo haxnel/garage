@@ -11,7 +11,7 @@ Servo servo;
 #define trigPin D8
 #define echoPin D7
 #define buzzer D4
-#define dhtpin D3
+#define dhtpin D5
 #define DHTTYPE DHT11
 
 DHT dht(dhtpin, DHTTYPE);
@@ -20,7 +20,7 @@ void setup() {
   
  pinMode(trigPin, OUTPUT ); 
 pinMode(echoPin, INPUT); 
-    servo.attach(14); //D5
+    servo.attach(D0); //pin D0
   
   pinMode(buzzer, OUTPUT);
   // Pemanggilan pertama memerlukan parameter jumlah kolom dan baris
@@ -64,12 +64,17 @@ else
  lcd.print("Suhu= ");
  lcd.print(suhu);
  lcd.print(" C   ");
+ lcd.setCursor(0,1);
+ lcd.print("Kelembapan= ");
+ lcd.print(v);
+ lcd.print(" %   ");
+ Serial.println(v)
  delay(1000);
   
-  if (suhu <= 24){
+  if (v >= 75){
     tone(buzzer, 1000);
   }
-  if (suhu >= 24){
+  if (v <= 75 ){
     noTone(buzzer);
   }
   

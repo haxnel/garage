@@ -8,6 +8,7 @@
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 Servo servo;
+
 #define trigPin D8
 #define echoPin D7
 #define buzzer D4
@@ -16,34 +17,39 @@ Servo servo;
 
 DHT dht(dhtpin, DHTTYPE);
 
-void setup() {
-  
- pinMode(trigPin, OUTPUT ); 
-pinMode(echoPin, INPUT); 
-    servo.attach(D0); //pin D0
-  
+void setup() {  
+  pinMode(trigPin, OUTPUT ); 
+  pinMode(echoPin, INPUT); 
+  servo.attach(D0); // sinyal yang diterima oleh servo berada pada pin D0
   pinMode(buzzer, OUTPUT);
   // Pemanggilan pertama memerlukan parameter jumlah kolom dan baris
-  // Ini harus sama dengan yang dimasukan pada konstruktor.
   lcd.begin(16,2);
   lcd.init();
   // Nyalakan backlight
   lcd.backlight();
+  dht.begin(); //Nyalakan Sensor DHT11
+  Serial.begin(9600); //untuk menentukan kecepatan pengiriman dan penerimaan data melalui port serial.
 }
  
 void loop(){
  //prosedur untuk mevariabelkan durasi dan jarak
-int durasi, jarak;
-digitalWrite(trigPin, HIGH); 
+long durasi, jarak;
+digitalWrite(trigPin, LOW);
+delayMicroseconds(2); 
+digitalWrite(trigPin, HIGH);
+delayMicroseconds(10); 
 digitalWrite(trigPin, LOW);
 digitalWrite(buzzer, HIGH);
 digitalWrite(buzzer, LOW);
-// Mengukur pulsa input di echo pin
+// Mengukur pulse input di echo pin
 durasi = pulseIn(echoPin, HIGH);
 // Perhitungan jarak dimana setengah durasi dibagi 29.1 (dari datasheet)
 jarak = (durasi/2) / 29.1;
-// Jika jarak kurang dari 35 cm dan lebih sama dengan 0
-if (jarak <= 30 && jarak >= 0) 
+Serial.print("Jarak=");
+Serial.print(jarak);
+Serial.println(" cm");
+// Jika jarak kurang dari 25 cm dan lebih sama dengan 0
+if (jarak <= 25 && jarak >= 0) 
 {
   servo.write(90);
       
@@ -56,26 +62,26 @@ else
  delay(1000);
   
  //Pendeklerasian untuk Sensor Suhu Temperature
-  //Rumus untuk penghitungan suhu 
  float v = dht.readHumidity();
   float suhu = dht.readTemperature();
   
- lcd.setCursor(0,0);
- lcd.print("Suhu= ");
- lcd.print(suhu);
- lcd.print(" C   ");
- lcd.setCursor(0,1);
- lcd.print("Kelembapan= ");
- lcd.print(v);
- lcd.print(" %   ");
- Serial.println(v)
- delay(1000);
-  
-  if (v >= 75){
-    tone(buzzer, 1000);
+  if (v > 70){
+    tone(buzzer, 2000);
+    delay(2000);
+    lcd.setCursor(1,0);
+    lcd.print("-Tong Sampah-");
+    lcd.setCursor(3,1);
+    lcd.print("Lembab :(");
   }
-  if (v <= 75 ){
+  else if (v <= 70 ){
     noTone(buzzer);
+    lcd.setCursor(0,0);
+    lcd.print("Suhu= ");
+    lcd.print(suhu);
+    lcd.print(" C");
+    lcd.setCursor(0,1);
+    lcd.print("Lembab= ");
+    lcd.print(v);
+    lcd.print(" %");
   }
-  
 }

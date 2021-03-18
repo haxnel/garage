@@ -28,7 +28,7 @@ void setup() {
   // Nyalakan backlight
   lcd.backlight();
   dht.begin(); //Nyalakan Sensor DHT11
-  Serial.begin(9600); //untuk menentukan kecepatan pengiriman dan penerimaan data melalui port serial.
+  Serial.begin(115200); //untuk menentukan kecepatan pengiriman dan penerimaan data melalui port serial.
 }
  
 void loop(){

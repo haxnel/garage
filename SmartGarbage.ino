@@ -64,16 +64,22 @@ else
  //Pendeklerasian untuk Sensor Suhu Temperature
  float v = dht.readHumidity();
   float suhu = dht.readTemperature();
-  
-  if (v > 70){
+Serial.print("Suhu= ");
+Serial.print(suhu);
+Serial.println(" C");
+Serial.print("Kelembapan= ");
+Serial.print(v);
+Serial.println(" %");
+
+  if (v > 75){
     tone(buzzer, 2000);
-    delay(2000);
+    delay(1000);
     lcd.setCursor(1,0);
     lcd.print("-Tong Sampah-");
     lcd.setCursor(3,1);
     lcd.print("Lembab :(");
   }
-  else if (v <= 70 ){
+  else if (v <= 75 ){
     noTone(buzzer);
     lcd.setCursor(0,0);
     lcd.print("Suhu= ");
